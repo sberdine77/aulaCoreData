@@ -25,6 +25,14 @@ class ViewController: UIViewController {
         let personEntity = NSEntityDescription.entity(forEntityName: "Person", in: managedContext)!
 //        let addressEntity = NSEntityDescription.entity(forEntityName: "Address", in: managedContext)!
         
+        //fetching entities
+        people = fetch(entityName: "Person", managedContext: managedContext)
+        self.addresses = fetch(entityName: "Address", managedContext: managedContext)
+        
+        //deleting entities
+        deleteAll(objects: people, managedContext: managedContext)
+        deleteAll(objects: addresses, managedContext: managedContext)
+        
         //populating entities
         let person1 = NSManagedObject(entity: personEntity, insertInto: managedContext)
         person1.setValue("Cristina", forKey: "name")
@@ -65,9 +73,22 @@ class ViewController: UIViewController {
         //fetching entities
         people = fetch(entityName: "Person", managedContext: managedContext)
         self.addresses = fetch(entityName: "Address", managedContext: managedContext)
+
         
-        //deleteAll(objects: people, managedContext: managedContext)
-        //deleteAll(objects: addresses, managedContext: managedContext)
+        //fetching entities with descriptors
+//        let sortByNameDescriptor = NSSortDescriptor(key: "name", ascending: true)
+//        people = fetchWithDescriptor(entityName: "Person", managedContext: managedContext, sortDescriptor: sortByNameDescriptor)
+//        let sortByAgeDescriptor = NSSortDescriptor(key: "age", ascending: true)
+//        people = fetchWithDescriptor(entityName: "Person", managedContext: managedContext, sortDescriptor: sortByAgeDescriptor)
+        
+        
+//        fetching entities with predicates
+//        let predicate1 = NSPredicate(format: "%K == %@", "first", "Lucy")
+//        people = fetchWithPredicate(entityName: "Person", managedContext: managedContext, predicate: predicate1)
+//        let predicate2 = NSPredicate(format: "%K <= %i", "age", 10)
+//        people = fetchWithPredicate(entityName: "Person", managedContext: managedContext, predicate: predicate2)
+        
+        
         
         for person in people{
             if let name = person.value(forKey: "name"), let surname = person.value(forKey: "surname"){
@@ -87,7 +108,6 @@ class ViewController: UIViewController {
             }
         }
         
-        // Do any additional setup after loading the view, typically from a nib.
     }
     
     func deleteAll(objects: [NSManagedObject], managedContext: NSManagedObjectContext){
@@ -126,6 +146,19 @@ class ViewController: UIViewController {
         
         let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
         fetchRequest.sortDescriptors = [sortDescriptor]
+        do {
+            let objects = try managedContext.fetch(fetchRequest)
+            print("Fetch successfull")
+            return objects
+        } catch let error as NSError {
+            print("Could not fetch. Return value is []. \(error) \(error.userInfo)")
+            return []
+        }
+    }
+    
+    func fetchWithPredicate(entityName: String, managedContext: NSManagedObjectContext, predicate: NSPredicate) -> [NSManagedObject]{
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: entityName)
+        fetchRequest.predicate = predicate
         do {
             let objects = try managedContext.fetch(fetchRequest)
             print("Fetch successfull")
